@@ -38,7 +38,7 @@ const auth = (req, res, next) => {
   }
   try {
     const decoded = JWT.verify(authorization, process.env.JWT_SECRET);
-    req.headers.id = decoded.id;
+    req.headers.user_id = decoded.id;
     req.headers.name = decoded.name;
     next();
   } catch (err) {
@@ -278,7 +278,10 @@ app
     } = req.body;
 
     try {
+      // fetching user's cart
       const cartData = await cartModel.findOne({ user_id });
+      console.log(`user_id-->`, user_id);
+      console.log(`------->`, cartData);
       const index = cartData.products.findIndex(
         (ele) => ele.productCartId == productCartId
       );
@@ -329,7 +332,7 @@ app
       }
     } catch (error) {
       res.status(500).json({
-        status: "error",
+        status: "error yes",
         message: `${error.message}`,
       });
     }
