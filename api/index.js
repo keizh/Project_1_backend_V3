@@ -550,7 +550,7 @@ app.route(`/cart/clear`).get(auth, async (req, res) => {
   try {
     const newCart = await cartModel.findOneAndUpdate(
       { user_id },
-      { products: [] },
+      { $set:{products: [] }},
       { new: true }
     );
     res.status(200).json({
