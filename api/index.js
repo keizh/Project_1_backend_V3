@@ -194,6 +194,42 @@ app
     }
   });
 
+
+app.route("/user/:id").get(auth,async(req,res)=>
+  {
+    const {id}=req.params;
+    try
+    {
+      if(!id) return res.status(404).json({message:"Id is not provided"});
+      const fetchedUser=await  userModel.findById(id).select("name email address");
+
+      return res.status(200).json({message:"User Fetched Successfully" , data:fetchedUser});
+    }
+    catch(err)
+    {
+      return res.status(500).json({message:"Failed to fetch User data"});
+    }
+  }).post(auth,async(req,res)=>
+  {
+    const {id}=req.params;
+    const {name , address , email }=req.params;
+    try
+    {
+      if(!id) return res.status(404).json({message:"Id is not provided"});
+      const fetchedUser=await  userModel.findByIdAndUpdate(id,{$set:{
+        name:name,
+        address:address,
+        email:email}},{new:true});
+      
+      return res.status(200).json({message:"User updated Successfully"});
+    }
+    catch(err)
+    {
+      return res.status(500).json({message:"Failed to update data"});
+    }
+  })
+
+
 app.route(`/product/:id`).get(auth, async (req, res) => {
   const { id } = req.params;
   try {
