@@ -15,10 +15,7 @@ const express = require(`express`);
 const app = express();
 const cors = require(`cors`);
 const corsOption = {
-  origin: [
-    "http://localhost:5173",
-    "https://project-1-frontend-six.vercel.app",
-  ],
+  origin: "*",
   allowedMethods: ["GET", "POST", "DELETE", "PUT", "PATCH"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
