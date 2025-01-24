@@ -212,7 +212,7 @@ app.route("/user/:id").get(auth,async(req,res)=>
   }).post(auth,async(req,res)=>
   {
     const {id}=req.params;
-    const {name , address , email }=req.params;
+    const {name , address , email }=req.body;
     try
     {
       if(!id) return res.status(404).json({message:"Id is not provided"});
