@@ -548,6 +548,7 @@ app.route(`/cart/subtractBy1`).post(auth, async (req, res) => {
 app.route(`/cart/clear`).get(auth, async (req, res) => {
   const { user_id } = req.headers;
   try {
+    console.log(user_id);
     const newCart = await cartModel.findOneAndUpdate(
       { user_id },
       { $set:{products: [] }},
