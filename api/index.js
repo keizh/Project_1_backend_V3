@@ -445,7 +445,7 @@ app.route(`/wishlist/add`).post(auth, async (req, res) => {
 
     const newUpdatedWishList=await wishlistModel.findOneAndUpdate(
       {user_id},
-      { $addToSet:{ products: { productId, productImg, productPrice, productName }  },
+      { $addToSet:{ products: { productId, productImg, productPrice, productName }  } },
       {new:true}
       );
     
