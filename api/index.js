@@ -258,11 +258,12 @@ app.route(`/product/:id`).get(auth, async (req, res) => {
       .select("products")
       .lean();
 
-    const findIndex = wishListProducts.products.map(
+    const findIndex = wishListProducts.products.findIndex(
       (ele) => ele.productId.toString() === product._id.toString()
     );
 
-    if (findIndex) {
+    if (findIndex > 0) {
+      console.log(`266->`, findIndex);
       product.in_wishlist = true;
     }
 
