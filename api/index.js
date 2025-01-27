@@ -169,7 +169,21 @@ app
   })
   .get("/product", auth, async (req, res) => {
     try {
-      const products = await productModel.find();
+      const {user_id}=req.headers;
+      const products = await productModel.find().lean();
+      const wishListProducts=await wishlistModel.findOne({user_id}).select("products").lean();
+
+      products=products.map((ele)=>
+      {
+        const isInWishlist=wishListProducts.findIndex((elem)=>elem.productId==ele._id);
+        if(isInWishlist)
+        {
+          ele.in_wishlist=true;
+        }
+        return ele;
+      })
+
+
       if (products) {
         res.status(200).json({
           status: "success",
