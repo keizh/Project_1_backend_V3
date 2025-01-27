@@ -425,23 +425,30 @@ app.route(`/wishlist/add`).post(auth, async (req, res) => {
   const { productId, productImg, productPrice, productName } = req.body;
   try {
     // toggle true to make changes to the product in products
-    const newUpdateProduct = await productModel.findOneAndUpdate(
-      { _id: productId },
-      { in_wishlist: true },
-      { new: true }
-    );
+    // const newUpdateProduct = await productModel.findOneAndUpdate(
+    //   { _id: productId },
+    //   { in_wishlist: true },
+    //   { new: true }
+    // );
     // fetching wishlist for wishlist products array
-    const wishlist = await wishlistModel.findOne({ user_id });
-    var products = [
-      ...wishlist.products,
-      { productId, productImg, productPrice, productName },
-    ];
+    // const wishlist = await wishlistModel.findOne({ user_id });
+    // var products = [
+    //   ...wishlist.products,
+    //   { productId, productImg, productPrice, productName },
+    // ];
     // updating products array
-    const newUpdatedWishList = await wishlistModel.findOneAndUpdate(
-      { user_id },
-      { products },
-      { new: true }
-    );
+    // const newUpdatedWishList = await wishlistModel.findOneAndUpdate(
+    //   { user_id },
+    //   { products },
+    //   { new: true }
+    // );
+
+    const newUpdatedWishList=await wishlistModel.findOneAndUpdate(
+      {user_id},
+      { $addToSet:{ products: { productId, productImg, productPrice, productName }  },
+      {new:true}
+      );
+    
     res.status(200).json({
       status: "success",
       message: "Added to wishlist",
@@ -456,19 +463,24 @@ app.route(`/wishlist/remove`).post(auth, async (req, res) => {
   const { user_id } = req.headers;
   const { productId } = req.body;
   try {
-    const updatedProduct = await productModel.findOneAndUpdate(
-      { _id: productId },
-      { in_wishlist: false },
-      { new: true }
-    );
-    const wishlist = await wishlistModel.findOne({ user_id });
-    var products = wishlist.products;
-    products = products.filter((ele) => ele.productId != productId);
+    // const updatedProduct = await productModel.findOneAndUpdate(
+    //   { _id: productId },
+    //   { in_wishlist: false },
+    //   { new: true }
+    // );
+    // const wishlist = await wishlistModel.findOne({ user_id });
+    // var products = wishlist.products;
+    // products = products.filter((ele) => ele.productId != productId);
     const newUpdatedWishList = await wishlistModel.findOneAndUpdate(
       { user_id },
-      { products },
+      { $pull : {  products : { productId } } },
       { new: true }
     );
+    // const newUpdatedWishList = await wishlistModel.findOneAndUpdate(
+    //   { user_id },
+    //   { products },
+    //   { new: true }
+    // );
     res.status(200).json({ status: "success", newUpdatedWishList });
   } catch (error) {
     res.status(500).json({ status: "error", message: `${error.message}` });
