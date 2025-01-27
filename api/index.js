@@ -168,21 +168,24 @@ app
     }
   })
   .get("/product", auth, async (req, res) => {
+    console.log(`hit api for fetching products`);
     try {
-      const {user_id}=req.headers;
-      const products = await productModel.find().lean();
-      const wishListProducts=await wishlistModel.findOne({user_id}).select("products").lean();
+      const { user_id } = req.headers;
+      let products = await productModel.find().lean();
+      let wishListProducts = await wishlistModel
+        .findOne({ user_id })
+        .select("products")
+        .lean();
 
-      products=products.map((ele)=>
-      {
-        const isInWishlist=wishListProducts.findIndex((elem)=>elem.productId==ele._id);
-        if(isInWishlist)
-        {
-          ele.in_wishlist=true;
+      products = products.map((ele) => {
+        let isInWishlist = wishListProducts.products.findIndex(
+          (elem) => elem.productId == ele._id
+        );
+        if (isInWishlist) {
+          ele.in_wishlist = true;
         }
         return ele;
-      })
-
+      });
 
       if (products) {
         res.status(200).json({
@@ -203,41 +206,45 @@ app
     }
   });
 
+app
+  .route("/user/:id")
+  .get(auth, async (req, res) => {
+    const { id } = req.params;
+    try {
+      if (!id) return res.status(404).json({ message: "Id is not provided" });
+      const fetchedUser = await userModel
+        .findById(id)
+        .select("name email address");
 
-app.route("/user/:id").get(auth,async(req,res)=>
-  {
-    const {id}=req.params;
-    try
-    {
-      if(!id) return res.status(404).json({message:"Id is not provided"});
-      const fetchedUser=await  userModel.findById(id).select("name email address");
-
-      return res.status(200).json({message:"User Fetched Successfully" , data:fetchedUser});
-    }
-    catch(err)
-    {
-      return res.status(500).json({message:"Failed to fetch User data"});
-    }
-  }).post(auth,async(req,res)=>
-  {
-    const {id}=req.params;
-    const {name , address , email }=req.body;
-    try
-    {
-      if(!id) return res.status(404).json({message:"Id is not provided"});
-      const fetchedUser=await  userModel.findByIdAndUpdate(id,{$set:{
-        name:name,
-        address:address,
-        email:email}},{new:true});
-      
-      return res.status(200).json({message:"User updated Successfully"});
-    }
-    catch(err)
-    {
-      return res.status(500).json({message:"Failed to update data"});
+      return res
+        .status(200)
+        .json({ message: "User Fetched Successfully", data: fetchedUser });
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to fetch User data" });
     }
   })
+  .post(auth, async (req, res) => {
+    const { id } = req.params;
+    const { name, address, email } = req.body;
+    try {
+      if (!id) return res.status(404).json({ message: "Id is not provided" });
+      const fetchedUser = await userModel.findByIdAndUpdate(
+        id,
+        {
+          $set: {
+            name: name,
+            address: address,
+            email: email,
+          },
+        },
+        { new: true }
+      );
 
+      return res.status(200).json({ message: "User updated Successfully" });
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to update data" });
+    }
+  });
 
 app.route(`/product/:id`).get(auth, async (req, res) => {
   const { id } = req.params;
@@ -457,12 +464,16 @@ app.route(`/wishlist/add`).post(auth, async (req, res) => {
     //   { new: true }
     // );
 
-    const newUpdatedWishList=await wishlistModel.findOneAndUpdate(
-      {user_id},
-      { $addToSet:{ products: { productId, productImg, productPrice, productName }  } },
-      {new:true}
-      );
-    
+    const newUpdatedWishList = await wishlistModel.findOneAndUpdate(
+      { user_id },
+      {
+        $addToSet: {
+          products: { productId, productImg, productPrice, productName },
+        },
+      },
+      { new: true }
+    );
+
     res.status(200).json({
       status: "success",
       message: "Added to wishlist",
@@ -487,7 +498,7 @@ app.route(`/wishlist/remove`).post(auth, async (req, res) => {
     // products = products.filter((ele) => ele.productId != productId);
     const newUpdatedWishList = await wishlistModel.findOneAndUpdate(
       { user_id },
-      { $pull : {  products : { productId } } },
+      { $pull: { products: { productId } } },
       { new: true }
     );
     // const newUpdatedWishList = await wishlistModel.findOneAndUpdate(
@@ -577,7 +588,7 @@ app.route(`/cart/clear`).get(auth, async (req, res) => {
     console.log(user_id);
     const newCart = await cartModel.findOneAndUpdate(
       { user_id },
-      { $set:{products: [] }},
+      { $set: { products: [] } },
       { new: true }
     );
     res.status(200).json({
